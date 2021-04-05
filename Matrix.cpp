@@ -8,15 +8,14 @@ public:
 	Matrix(int row, int col);
 	Matrix(const Matrix& other);
 	Matrix(const std::initializer_list< std::initializer_list<int>>& list);
-	Matrix& operator =(const Matrix& other);
-	Matrix operator *(const Matrix& other);
-	int* operator [](int index);
-	int  operator [](int indexcol);
 	void cleer(Matrix& other);
 	int** creature(int row,int col);
 	void copy(Matrix& other,const Matrix& other_2);
+	Matrix& operator =(const Matrix&other);
+	Matrix& operator *(const Matrix&other);
 	int** get_ptrarr();
 	void transpose();
+	void multiplication(const Matrix& other);
 	~Matrix();
 	void print() {
 		std::cout << row << "\t" << col << "\n";
@@ -33,23 +32,18 @@ public:
 private:
 	int row, col;
 	int** ptrarr;
-	int *indexrow;
 };
 int main()
 {
 	Matrix A{ {1,2,3},{4,5,6},{7,8,9} };
+	A.print();
 	Matrix B{ {1,2,3},{4,5,6} };
 	B.transpose();
+	B.print();
 	Matrix C;
 	C = A;
-	C = A * B;
-	std::cout << "A :\n";
-	A.print();
-	std::cout << "\nB :\n";
-	B.print();
-	std::cout << "\nC :\n";
 	C.print();
-	C.transpose();
+	C = A * B;
 	C.print();
 	system("pause");
 	return 0;
@@ -83,52 +77,6 @@ Matrix::Matrix(const std::initializer_list< std::initializer_list<int>>& list)
 		ptrarr[i] = new int[col];
 		std::copy(el->begin(), el->end(), ptrarr[i]);
 	}
-}
-Matrix& Matrix::operator=(const Matrix& other)
-{
-	cleer(*this);
-	this->row = other.row;
-	this->col = other.col;
-	this->ptrarr = creature(row, col);
-	copy(*this, other);
-	return *this;
-}
-Matrix Matrix::operator*(const Matrix& other)
-{
-	int x = 0, sizerow = 0, sizecol = 0;
-	sizerow = this->row;
-	sizecol = other.col;
-	Matrix test(sizerow, sizecol);
-
-	if (this->col == other.row)
-	{
-		for (int i = 0; i < sizerow; i++)
-		{
-			for (int j = 0; j < sizecol; j++)
-			{
-				test.ptrarr[i][j] = 0;
-			}
-
-		}
-		for (int i = 0; i < sizerow; i++)
-		{
-			for (int j = 0; j < sizecol; j++)
-			{
-				for (int k = 0; k < this->col; k++)
-				{
-					test.ptrarr[i][j] += this->ptrarr[i][k] * other.ptrarr[k][j];
-				}
-			}
-		}
-	}
-	else
-		std::cout << "Failed to multiply matrices\n";
-	return test;
-}
-int* Matrix::operator[](int index)
-{
-	this->indexrow = ptrarr[index];
-	return indexrow;
 }
 void Matrix::cleer(Matrix& other)
 {
@@ -168,6 +116,49 @@ void Matrix::copy(Matrix& other, const Matrix& other_2)
 			other.ptrarr[i][j] = other_2.ptrarr[i][j];
 		}
 	}
+}
+Matrix& Matrix::operator=(const Matrix& other)
+{
+	cleer(*this);
+	this->row = other.row;
+	this->col=other.col;
+	this->ptrarr = creature(row, col);
+	copy(*this, other);
+	return *this;
+}
+Matrix& Matrix::operator*(const Matrix& other)
+{
+	int x = 0, sizerow = 0, sizecol = 0;
+	sizerow = this->row;
+	sizecol = other.col;
+	Matrix test;
+	test.ptrarr = creature(sizerow,sizecol);
+	if (this->col == other.row)
+	{
+		
+		for (int i = 0; i < sizerow ; i++)
+		{
+			for (int j = 0; j < sizecol; j++)
+			{
+				test.ptrarr[i][j] = x;
+			}
+
+		}
+		for (int i = 0; i < sizerow; i++)
+		{
+			for (int j = 0; j < sizecol; j++)
+			{
+				for (int k = 0; k < this->col; k++)
+				{
+					test.ptrarr[i][j] += this->ptrarr[i][k] * other.ptrarr[k][j];
+				}
+			}
+		}
+		
+	}
+	else
+		std::cout << "Failed to multiply matrices\n";
+	return test;
 }
 int** Matrix::get_ptrarr()
 {
@@ -218,6 +209,35 @@ void Matrix::transpose()
 		std::swap(row,col);
 		
 	}
+}
+void Matrix::multiplication(const Matrix& other)
+{
+	if (this->col==other.row)
+	{
+		int x = 0;
+		int** test = creature(this->row,other.col);
+		for (int i = 0; i < this->row; i++)
+		{
+			for (int j = 0; j <other.col; j++)
+			{
+				test[i][j] = x;
+			}
+			
+		}
+		for (int i = 0; i < this->row; i++)
+		{
+			for (int j = 0; j < other.col; j++)
+			{
+				for (int k = 0; k < this->col; k++)
+				{
+					test[i][j] += this->ptrarr[i][k] * other.ptrarr[k][j];
+				}
+			}
+		}
+
+	}
+	else
+		std::cout << "Failed to multiply matrices\n";
 }
 Matrix::~Matrix()
 {
